@@ -1,29 +1,37 @@
-import os
-import json
 import xml.etree.ElementTree as ET
 
-# Working with the os module
-file_path = "example.txt"
+def calculate_average_fps(xml_file):
+    try:
+        # Parse the XML file
+        tree = ET.parse(xml_file)
+        root = tree.getroot()
 
-# Check if a file exists
-if os.path.exists(file_path):
-    print(f"The file {file_path} exists.")
+        # Initialize a list to store FPS values
+        fps_values = []
+
+        # Loop through the XML structure to find relevant FPS or frame time tags
+        # Assume XML contains <frame> tags with <fps> values
+        for frame in root.findall('.//frame'):
+            fps = frame.find('fps')
+            if fps is not None and fps.text.isdigit():
+                fps_values.append(float(fps.text))
+
+        # Calculate average FPS
+        if fps_values:
+            average_fps = sum(fps_values) / len(fps_values)
+            return average_fps
+        else:
+            return None
+
+    except Exception as e:
+        print(f"Error processing XML: {e}")
+        return None
+
+# Example usage
+xml_file = 'performance_log.xml'
+average_fps = calculate_average_fps(xml_file)
+
+if average_fps is not None:
+    print(f"Average FPS: {average_fps:.2f}")
 else:
-    print(f"The file {file_path} does not exist.")
-
-# List all files in the directory
-files_in_directory = os.listdir(os.getcwd())
-print("Files in Current Directory:", files_in_directory)
-
-# Reading and writing to a file
-# Writing to a file
-with open("example.txt", "w") as file:
-    file.write("Hello, this is a sample text file.")
-
-# Reading from a file
-with open("example.txt", "r") as file:
-    content = file.read()
-    print("File Content:", content)
-
-# Parsing JSON
-json_data =
+    print("No FPS data found or an error occurred.")
